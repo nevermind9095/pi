@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>604 數學探索實驗室：圓周率的祕密</title>
+<style>
+:root{
+  --paper:#FBF6EA;
+  --bench:#FFFDF6;
+  --line:#E8DFC9;
+  --ink:#2F4058;
+  --ink-deep:#1E2C40;
+  --ink-soft:#5C6B80;
+  --orange:#E0700F;
+  --orange-pale:#F5DDC2;
+  --blue:#2468C0;
+  --blue-light:#6FA0E2;
+  --green:#23804E;
+  --green-pale:#E2F2E7;
+  --pink:#D22B66;
+  --pink-pale:#FBE6EE;
+  --yellow:#F6C343;
+  --font:"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
+  --sketch:255px 22px 225px 22px / 22px 225px 22px 255px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{font-size:clamp(16px,calc(.55vw + .85vh + 3px),26px);-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{
+  height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+  background:var(--paper);color:var(--ink);
+  font-family:var(--font);line-height:1.5;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;user-select:none;
+  overflow:hidden;
+}
+h1,h2,p,ol,ul{margin:0;padding:0}
+ol,ul{list-style:none}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:disabled{cursor:default}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* ---------- 頁首 ---------- */
+.top{
+  flex:0 0 auto;display:flex;align-items:center;gap:1rem;
+  padding:.5rem 1rem;border-bottom:2.5px solid var(--ink);
+}
+.brand{flex:0 1 auto;min-width:0;line-height:1.25}
+.brand h1{font-size:1.15rem;font-weight:800;white-space:nowrap}
+.brand span{font-size:.9rem;color:var(--ink-soft);white-space:nowrap}
+.steps{flex:1 1 auto;display:flex;justify-content:center;gap:.25rem}
+.steps button{
+  display:flex;align-items:center;gap:.4rem;
+  min-height:2.9rem;padding:.2rem .7rem;
+  background:none;border:0;border-radius:2rem;font-weight:700;font-size:1rem;
+  white-space:nowrap;
+}
+.steps i{
+  font-style:normal;display:flex;align-items:center;justify-content:center;
+  width:1.8rem;height:1.8rem;border-radius:50%;border:2.5px solid var(--ink);
+  font-size:.95rem;background:#fff;
+}
+.steps button:disabled{color:var(--ink-soft);opacity:.55}
+.steps button.done i{background:var(--green);border-color:var(--green);color:#fff}
+.steps button.now{background:var(--ink);color:#fff}
+.steps button.now i{background:#fff;color:var(--ink);border-color:#fff}
+.teacher{flex:0 0 auto;position:relative}
+.t-toggle{
+  min-height:2.9rem;padding:.2rem .9rem;border-radius:.7rem;
+  border:2px dashed var(--ink-soft);background:none;font-weight:700;font-size:.95rem;white-space:nowrap;
+}
+.t-panel{
+  position:absolute;right:0;top:calc(100% + .4rem);z-index:20;
+  display:flex;flex-direction:column;gap:.4rem;
+  width:12.5rem;padding:.6rem;background:#fff;
+  border:2.5px solid var(--ink);border-radius:.9rem;
+  box-shadow:0 .35rem 0 rgba(47,64,88,.25);
+}
+.t-panel button{
+  min-height:3rem;border-radius:.6rem;border:2px solid var(--ink);
+  background:#fff;font-weight:700;font-size:1rem;
+}
+.t-panel button:disabled{opacity:.35}
+.t-panel #tReset{border-color:var(--pink);color:var(--pink)}
+.t-panel #tReset.armed{background:var(--pink);color:#fff}
+
+/* ---------- 版面 ---------- */
+main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding:.6rem 1rem .8rem}
+.stage{flex:1 0 auto;display:flex;flex-direction:column;gap:.55rem}
+.stage h2{font-size:1.4rem;font-weight:800;line-height:1.3}
+.bench{
+  flex:1 1 0;min-height:15rem;position:relative;
+  background-color:var(--bench);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:2rem 2rem;
+  border:2.5px solid var(--ink);border-radius:18px 28px 16px 30px / 26px 16px 30px 18px;
+  overflow:hidden;
+}
+.bench svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.panel{flex:0 0 auto;display:flex;flex-direction:column;gap:.55rem}
+.row{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem .8rem}
+.grow{flex:1 1 16rem;min-width:0}
+.say{font-size:1.2rem;font-weight:600}
+.say b.c,.tc{color:var(--orange)}
+.say b.d,.td{color:var(--blue)}
+.count{font-size:1.1rem;font-weight:700;color:var(--blue);white-space:nowrap}
+
+.btn{
+  min-height:3.3rem;padding:.4rem 1.4rem;
+  border:2.5px solid var(--ink);border-radius:.9rem;background:#fff;
+  font-size:1.2rem;font-weight:800;white-space:nowrap;
+  transition:transform .08s;
+}
+.btn.primary{background:var(--ink);color:#fff;box-shadow:0 .25rem 0 var(--ink-deep)}
+.btn:active:not(:disabled){transform:translateY(.15rem)}
+.btn.primary:active:not(:disabled){box-shadow:0 .1rem 0 var(--ink-deep)}
+.btn:disabled{opacity:.42;box-shadow:none}
+
+/* 問答 */
+.quiz{display:flex;flex-direction:column;gap:.5rem}
+.quiz .q{font-size:1.2rem;font-weight:800}
+.opts{display:flex;flex-wrap:wrap;gap:.6rem}
+.opt{
+  flex:1 1 9rem;min-height:3.3rem;padding:.3rem .8rem;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  background:#fff;border:2.5px solid var(--ink);border-radius:var(--sketch);
+  font-size:1.2rem;font-weight:700;
+}
+.opt em{font-style:normal;font-weight:800;color:var(--ink-soft)}
+.opt.wrong{border-color:var(--pink);background:var(--pink-pale)}
+.opt.right{border-color:var(--green);background:var(--green);color:#fff}
+.opt.right em{color:#fff}
+.opt:disabled:not(.right){opacity:.55}
+.fb{font-size:1.15rem;font-weight:700;padding:.45rem .9rem;border-radius:.7rem}
+.fb.hint{color:var(--pink);background:var(--pink-pale)}
+.fb.good{color:var(--green);background:var(--green-pale)}
+.ask{font-size:1.2rem;font-weight:800;color:var(--ink)}
+
+/* SVG */
+svg text{font-family:var(--font);fill:var(--ink);paint-order:stroke;stroke:var(--bench);stroke-width:5px;stroke-linejoin:round}
+svg text.tc{fill:var(--orange)}
+svg text.td{fill:var(--blue)}
+.ground{stroke:var(--ink);stroke-width:2.5}
+.tick{stroke:var(--ink-soft);stroke-width:1.5}
+.tick.major{stroke:var(--ink);stroke-width:2.2}
+.tick-num{font-size:21px;font-weight:600;text-anchor:middle}
+.trail{stroke:var(--orange);stroke-width:8}
+.rim{fill:rgba(255,255,255,.75);stroke:var(--orange);stroke-width:7}
+.rim-used{fill:none;stroke:var(--orange-pale);stroke-width:8.5;transition:opacity .5s}
+.is-done .rim-used{opacity:0}
+.spoke{stroke:#D9D2C0;stroke-width:2}
+.dia{stroke:var(--blue);stroke-width:6}
+.hub{fill:var(--ink)}
+.mark{fill:var(--yellow);stroke:var(--ink);stroke-width:3}
+.w-title{font-size:25px;font-weight:800;text-anchor:middle;fill:var(--blue)}
+.w-read{font-size:25px;font-weight:800;text-anchor:middle}
+.dim{stroke:var(--orange);stroke-width:3;fill:none}
+.dim-text{font-size:29px;font-weight:800;text-anchor:middle;fill:var(--orange)}
+.mini-label{font-size:22px;font-weight:700;text-anchor:middle}
+.endline{stroke:var(--orange);stroke-width:2.5;stroke-dasharray:6 6}
+
+.bar-c{fill:var(--orange)}
+.bar-rest{fill:var(--pink)}
+.piece{stroke:none}
+.piece-odd{fill:var(--blue)}
+.piece-even{fill:var(--blue-light)}
+.piece-over{fill:#fff;fill-opacity:.85;stroke:var(--blue);stroke-width:2.5;stroke-dasharray:9 7}
+.piece-n{font-size:21px;font-weight:800;text-anchor:middle;fill:#fff;stroke:none}
+.piece-n.dark{fill:var(--blue)}
+.row-label{font-size:25px;font-weight:800}
+.callout{font-size:37px;font-weight:800;fill:var(--pink);text-anchor:middle}
+.callout-sub{font-size:24px;font-weight:700;text-anchor:middle;fill:var(--ink-soft)}
+.arrow{fill:none;stroke:var(--pink);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.note{font-size:19px;fill:var(--ink-soft);text-anchor:end}
+
+/* 階段三 */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:1rem;align-items:start}
+.picks{display:flex;gap:.6rem;flex-wrap:wrap}
+.pick{
+  flex:1 1 6.5rem;min-height:3.6rem;padding:.2rem .4rem;background:#fff;
+  border:2.5px solid var(--ink);border-radius:var(--sketch);
+  font-size:1.15rem;font-weight:800;line-height:1.2;
+}
+.pick small{display:block;font-size:.9rem;font-weight:700;color:var(--blue)}
+.pick.on{background:var(--ink);color:#fff}
+.pick.on small{color:#CFE0F7}
+.pick .ok{color:var(--green)}
+.pick.on .ok{color:#9FE3BC}
+.pick:disabled{opacity:.6}
+.stack{display:flex;flex-direction:column;gap:.55rem}
+table{width:100%;border-collapse:collapse;background:#fff;border:2.5px solid var(--ink)}
+th,td{padding:.28rem .6rem;border:1.5px solid #CFC7B3;text-align:center;font-size:1.1rem;font-weight:700}
+th{background:#F3ECDA;font-size:1rem}
+tr.sel td{background:#FFF6DC}
+td.num{font-variant-numeric:tabular-nums}
+.sim{font-size:.92rem;color:var(--ink-soft);font-weight:600;margin-top:.3rem;line-height:1.35}
+.sim b{color:var(--ink);background:var(--yellow);padding:0 .35rem;border-radius:.3rem}
+
+/* 階段四：比值 */
+.ratio-wrap{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:0}
+.ratios{
+  display:grid;width:100%;max-width:70rem;
+  grid-template-columns:11rem .8fr 1fr minmax(18rem,1.9fr) 3rem;
+  background:#fff;border:2.5px solid var(--ink);border-radius:1rem;overflow:hidden;
+}
+.ratios>div{display:flex;align-items:center;justify-content:center;padding:.35rem .4rem;font-size:1.55rem;font-weight:700;border-bottom:1.5px solid #CFC7B3;min-height:6.6rem;font-variant-numeric:tabular-nums}
+.ratios>div.h{min-height:0;background:#F3ECDA;font-size:1.15rem}
+.ratios>div.last{border-bottom:0}
+.ratios svg.m{width:6rem;height:6rem;display:block}
+.ratios .nm{gap:.5rem;white-space:nowrap}
+.m circle{fill:#fff;stroke:var(--orange);stroke-width:3}
+.m line{stroke:var(--blue);stroke-width:3}
+.calc{gap:.5rem;white-space:nowrap}
+.calc .res{color:var(--green);font-size:2.2rem;font-weight:800;border-radius:.5rem;padding:0 .35rem}
+.calc span{visibility:hidden}
+.calc span.on{visibility:visible}
+.brace-cell{grid-column:5;grid-row:2 / span 3;border-bottom:0!important;background:#fff;padding:.3rem .2rem!important}
+.brace-cell svg{width:100%;height:100%;display:block}
+.brace-cell path{fill:none;stroke:var(--green);stroke-width:3;vector-effect:non-scaling-stroke;stroke-linecap:round}
+
+/* 階段四：揭曉 */
+.reveal{
+  flex:1 1 auto;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  gap:1.2rem;align-items:stretch;min-height:0;
+}
+.rv-main{
+  display:flex;flex-direction:column;justify-content:center;gap:1.1rem;
+  background:var(--green-pale);border:3px solid var(--green);border-radius:18px 28px 16px 30px / 26px 16px 30px 18px;
+  padding:1.3rem 1.8rem;
+}
+.rv-say{font-size:2.1rem;font-weight:800;line-height:1.45;color:var(--green)}
+.rv-eq{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1.8rem}
+.rv-eq .f{font-size:2rem;font-weight:800}
+.rv-eq .pi{font-size:4.2rem;font-weight:800;color:var(--green);line-height:1.1;white-space:nowrap}
+.rv-ext{font-size:2rem;font-weight:800;border-top:2.5px dashed var(--green);padding-top:.7rem}
+.rv-points{display:flex;flex-direction:column;justify-content:center;gap:.7rem}
+.rv-points li{font-size:1.45rem;font-weight:700;line-height:1.4;background:#fff;border:2.5px solid var(--ink);border-radius:.8rem;padding:.55rem .9rem}
+.rv-points li.key{border-color:var(--pink);color:var(--pink)}
+.fade{opacity:0;transform:translateY(.6rem);transition:opacity .45s,transform .45s}
+.fade.on{opacity:1;transform:none}
+
+/* ---------- 直向平板 ---------- */
+@media (max-aspect-ratio: 1/1){
+  .split{grid-template-columns:minmax(0,1fr)}
+  .reveal{grid-template-columns:minmax(0,1fr)}
+  .rv-points{justify-content:flex-start}
+  .bench{min-height:17rem}
+}
+/* ---------- 窄螢幕 ---------- */
+@media (max-width: 860px){
+  .brand span{display:none}
+  .steps span{display:none}
+  .steps button{padding:.2rem .35rem}
+  .steps button.now{background:none;color:inherit}
+  .steps button.now i{background:var(--ink);color:#fff;border-color:var(--ink)}
+}
+@media (max-width: 560px){
+  .top{gap:.4rem;padding:.4rem .5rem}
+  .brand h1{font-size:.95rem;white-space:normal}
+  main{padding:.5rem .6rem}
+  .ratios{grid-template-columns:3.8rem .7fr 1fr minmax(8.5rem,1.7fr) 1.4rem}
+  .ratios .nm{flex-direction:column;gap:0}
+  .ratios>div{font-size:1rem;min-height:4.2rem}
+  .calc .res{font-size:1.2rem}
+  .ratios svg.m{width:3.2rem;height:3.2rem}
+}
+@media (prefers-reduced-motion: reduce){
+  .fade,.rim-used,.btn{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>604 數學探索實驗室</h1>
+    <span>圓周率的祕密</span>
+  </div>
+  <ol class="steps" id="steps">
+    <li><button data-go="0"><i>1</i><span>滾一圈</span></button></li>
+    <li><button data-go="1"><i>2</i><span>排直徑</span></button></li>
+    <li><button data-go="2"><i>3</i><span>換大小</span></button></li>
+    <li><button data-go="3"><i>4</i><span>揭祕密</span></button></li>
+  </ol>
+  <div class="teacher">
+    <button class="t-toggle" id="tToggle" aria-expanded="false">老師工具</button>
+    <div class="t-panel" id="tPanel" hidden>
+      <button id="tSkip">跳過動畫</button>
+      <button id="tReplay">重播動畫</button>
+      <button id="tPrev">上一階段</button>
+      <button id="tReset">重新開始</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 階段一 -->
+  <section class="stage" id="stage0">
+    <h2>階段一：圓滾一圈，有多遠？</h2>
+    <div class="bench"><svg id="svg0" viewBox="0 0 1100 370" preserveAspectRatio="xMidYMid meet" role="img" aria-label="輪子在軌道上滾動"></svg></div>
+    <div class="panel">
+      <div class="row">
+        <p class="say grow" id="s0Say"></p>
+        <button class="btn primary" id="s0Roll" data-lock>滾動一圈</button>
+      </div>
+      <div id="s0Quiz" class="quiz" hidden></div>
+      <div class="row" id="s0After" hidden>
+        <span class="grow"></span>
+        <button class="btn primary" data-next="1" data-lock>下一階段：用直徑量量看</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 階段二 -->
+  <section class="stage" id="stage1" hidden>
+    <h2>階段二：圓周長大約是幾個直徑？</h2>
+    <div class="bench"><svg id="svg1" viewBox="0 0 1100 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="用直徑線段比對圓周長線段"></svg></div>
+    <div class="panel">
+      <div class="row">
+        <p class="say grow" id="s1Say"></p>
+        <span class="count" id="s1Count"></span>
+        <button class="btn" id="s1Clear" data-lock>全部收回</button>
+        <button class="btn primary" id="s1Place" data-lock>放入一個直徑</button>
+      </div>
+      <div id="s1Quiz" class="quiz" hidden></div>
+      <div class="row" id="s1After" hidden>
+        <p class="ask grow">如果換成更大的圓，圓周長還會是直徑的 3 倍多一點嗎？</p>
+        <button class="btn primary" data-next="2" data-lock>下一階段：換不同的圓</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 階段三 -->
+  <section class="stage" id="stage2" hidden>
+    <h2>階段三：更換不同大小的圓，找出規律</h2>
+    <div class="bench"><svg id="svg2" viewBox="0 -12 1100 412" preserveAspectRatio="xMidYMid meet" role="img" aria-label="不同大小的圓在尺上滾動"></svg></div>
+    <div class="panel split">
+      <div class="stack">
+        <div class="picks" id="picks"></div>
+        <div class="row">
+          <p class="say grow" id="s2Say"></p>
+          <button class="btn primary" id="s2Measure" data-lock>測量圓周長</button>
+        </div>
+      </div>
+      <div class="stack">
+        <table>
+          <thead><tr><th>圓形</th><th>直徑</th><th>圓周長</th></tr></thead>
+          <tbody id="s2Body"></tbody>
+        </table>
+        <p class="sim"><b>模擬測量</b> 這些是用理想的圓算出來的數字，實際用尺量會有一點誤差。</p>
+        <div class="row" id="s2After" hidden>
+          <button class="btn primary" data-next="3" data-lock style="flex:1 1 auto">下一階段：分析這些數據</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 階段四 -->
+  <section class="stage" id="stage3" hidden>
+    <h2>階段四：揭曉圓周率的祕密</h2>
+    <div class="ratio-wrap" id="s3Table">
+      <div class="ratios" id="ratios"></div>
+    </div>
+    <div class="panel" id="s3Panel">
+      <div class="row">
+        <p class="say grow" id="s3Say"></p>
+        <button class="btn primary" id="s3Calc" data-lock>計算三個圓的比值</button>
+        <button class="btn primary" id="s3Reveal" data-lock hidden>揭曉祕密</button>
+      </div>
+    </div>
+    <div class="reveal" id="reveal" hidden>
+      <div class="rv-main">
+        <p class="rv-say fade" data-at="0">不管圓有多大，圓周長和直徑的比值都相同，這個固定的比值叫做『圓周率』。</p>
+        <div class="rv-eq fade" data-at="0.3">
+          <span class="f">圓周率＝<span class="tc">圓周長</span> ÷ <span class="td">直徑</span></span>
+          <span class="pi">π ≈ 3.14</span>
+        </div>
+        <p class="rv-ext fade" data-at="0.55"><span class="tc">圓周長</span>＝<span class="td">直徑</span> × 圓周率</p>
+      </div>
+      <ul class="rv-points fade" data-at="0.75">
+        <li class="key">π 的數值不是剛好等於 3.14，它的小數一直延伸下去。</li>
+        <li>3.14 是課堂計算常用的近似值。</li>
+        <li>不同大小的圓有相同的圓周率。</li>
+        <li>圓越大，圓周長越長，但圓周率不會跟著變大。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ========== 數學設定：所有長度都由直徑推算 ========== */
+  var PI = Math.PI;
+  var UNIT = 26;              // 階段一、三的比例：1 模擬公分 = 26 個 SVG 單位
+  var WHEEL_D = 7;            // 階段一、二的輪子，比甲圓小，「換成更大的圓」才成立
+  var LINE_D = 255;           // 階段二放大顯示時，一條直徑的長度
+  var CIRCLES = [
+    { id: 'jia', name: '甲圓', d: 8 },
+    { id: 'yi',  name: '乙圓', d: 9 },
+    { id: 'bing', name: '丙圓', d: 10 }
+  ];
+  function round2(x) { return Math.round(x * 100) / 100; }
+  function fmt2(x) { return x.toFixed(2); }
+
+  var QUIZ = {
+    roll: {
+      q: '圓滾動一圈的距離，是圓上的哪一種長度？',
+      opts: [['A', '半徑'], ['B', '直徑'], ['C', '圓周長']],
+      answer: 2,
+      hints: ['半徑是從圓心到圓邊的一小段。再看一次，貼著軌道走的是輪子的哪裡？',
+              '直徑是穿過圓心的藍線。再看一次，貼著軌道走的是輪子的哪裡？'],
+      right: '對！輪子外圍這一圈，一路貼著軌道鋪開來，所以滾一圈的距離就是圓周長。'
+    },
+    times: {
+      q: '圓周長大約是直徑的幾倍？',
+      opts: [['A', '不到 3 倍'], ['B', '3 倍多一點'], ['C', '剛好 4 倍']],
+      answer: 1,
+      hints: ['看看橘色線段的尾巴，排了三個直徑之後還有剩。',
+              null,
+              '再放一個直徑試試看，第四個會超過橘色線段。'],
+      right: '圓周長大約是直徑的 3 倍多一點。'
+    }
+  };
+
+  /* ========== 狀態 ========== */
+  function freshState() {
+    return {
+      stage: 0,
+      s0: { rolled: false },
+      s1: { introDone: false, placed: 0 },
+      s2: { sel: 'jia', data: {} },
+      s3: { calc: false, revealed: false },
+      quiz: { roll: { wrong: null, done: false }, times: { wrong: null, done: false } }
+    };
+  }
+  var state = freshState();
+
+  /* ========== 動畫：同一時間只會有一個動畫在跑 ========== */
+  var job = null, rafId = null;
+
+  function runAnim(duration, step, done) {
+    stopAnim();
+    var me = { step: step, done: done, start: null };
+    job = me;
+    function tick(now) {
+      if (job !== me) return;
+      if (me.start === null) me.start = now;
+      var t = Math.min(1, (now - me.start) / duration);
+      step(t);
+      if (t < 1) { rafId = requestAnimationFrame(tick); return; }
+      job = null; rafId = null;
+      if (done) done();
+      syncLocks();
+    }
+    rafId = requestAnimationFrame(tick);
+    syncLocks();
+  }
+  function stopAnim() {
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    rafId = null; job = null;
+  }
+  function finishAll() {            // 把連續動畫一路快轉到結束
+    var guard = 40;
+    while (job && guard-- > 0) {
+      var j = job;
+      stopAnim();
+      j.step(1);
+      if (j.done) j.done();
+    }
+    syncLocks();
+  }
+  function ease(t) { return 0.5 - 0.5 * Math.cos(PI * t); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  /* ========== 小工具 ========== */
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text !== undefined) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function show(el, on) { el.style.display = on ? '' : 'none'; }
+  function off(el, isOff) { el.dataset.off = isOff ? '1' : ''; }
+  function syncLocks() {
+    var locks = document.querySelectorAll('[data-lock]');
+    for (var i = 0; i < locks.length; i++) {
+      locks[i].disabled = !!job || locks[i].dataset.off === '1';
+    }
+    document.querySelectorAll('.pick,.opt').forEach(function (b) {
+      b.disabled = !!job || b.dataset.off === '1';
+    });
+    $('tSkip').disabled = !job;
+  }
+
+  /* ========== 滾輪元件：階段一、三共用 ========== */
+  function makeRoller(svg, opt) {
+    var x0 = opt.x0, groundY = opt.groundY;
+    var r = 0, cy = 0, circ = 0, rollP = 0;
+
+    S('line', { x1: opt.trackFrom, y1: groundY, x2: opt.trackTo, y2: groundY, 'class': 'ground' }, svg);
+    for (var cm = 0; x0 + cm * UNIT <= opt.trackTo; cm++) {
+      var tx = x0 + cm * UNIT, major = cm % 5 === 0;
+      S('line', { x1: tx, x2: tx, y1: groundY + 4, y2: groundY + (major ? 21 : 12), 'class': major ? 'tick major' : 'tick' }, svg);
+      if (opt.numbers && major) S('text', { x: tx, y: groundY + 44, 'class': 'tick-num' }, svg, String(cm));
+    }
+    if (opt.numbers) S('text', { x: opt.trackTo + 17, y: groundY + 44, 'class': 'tick-num', style: 'text-anchor:start' }, svg, 'cm');
+    if (!opt.numbers) S('text', { x: x0, y: groundY + 46, 'class': 'mini-label' }, svg, '起點');
+
+    var trail = S('line', { x1: x0, y1: groundY, x2: x0, y2: groundY, 'class': 'trail' }, svg);
+
+    var doneLayer = S('g', {}, svg);
+    var endLine = S('line', { y1: groundY, 'class': 'endline' }, doneLayer);
+    var endWord = opt.numbers ? null : S('text', { y: groundY + 46, 'class': 'mini-label' }, doneLayer, '終點');
+    var dimY = groundY + (opt.numbers ? 58 : 64);
+    var dim = S('path', { 'class': 'dim' }, doneLayer);
+    var dimText = S('text', { y: dimY + 33, 'class': 'dim-text' }, doneLayer);
+    endLine.setAttribute('y2', dimY);
+
+    var wheel = S('g', { id: opt.id }, svg);
+    var rot = S('g', {}, wheel);
+    var rim = S('circle', { cx: 0, cy: 0, 'class': 'rim' }, rot);
+    var spokes = [];
+    for (var i = 0; i < 4; i++) spokes.push(S('line', { 'class': 'spoke', transform: 'rotate(' + (45 + i * 90) + ')' }, rot));
+    var used = S('circle', { cx: 0, cy: 0, 'class': 'rim-used', transform: 'rotate(90) scale(1 -1)' }, rot);
+    var dia = S('line', { y1: 0, y2: 0, 'class': 'dia' }, rot);
+    var mark = S('circle', { cx: 0, r: 12, 'class': 'mark' }, rot);
+    S('circle', { cx: 0, cy: 0, r: 6, 'class': 'hub' }, wheel);
+    var title = S('text', { x: 0, 'class': 'w-title' }, wheel);
+    var read = S('text', { x: 0, 'class': 'w-read' }, wheel);
+
+    var api = {
+      setCircle: function (dCm, titleText) {
+        r = dCm * UNIT / 2;
+        circ = 2 * PI * r;
+        cy = groundY - r;
+        rim.setAttribute('r', r); used.setAttribute('r', r);
+        dia.setAttribute('x1', -r); dia.setAttribute('x2', r);
+        spokes.forEach(function (s) { s.setAttribute('x1', 0); s.setAttribute('y1', 0); s.setAttribute('x2', r); s.setAttribute('y2', 0); });
+        mark.setAttribute('cy', r);
+        title.setAttribute('y', -r - 13);
+        title.textContent = titleText || '';
+        read.setAttribute('y', r * 0.55);
+        var endX = x0 + circ;
+        endLine.setAttribute('x1', endX); endLine.setAttribute('x2', endX);
+        if (endWord) endWord.setAttribute('x', endX);
+        dim.setAttribute('d', 'M' + x0 + ' ' + (dimY - 8) + 'V' + (dimY + 8) + 'M' + x0 + ' ' + dimY + 'H' + endX + 'M' + endX + ' ' + (dimY - 8) + 'V' + (dimY + 8));
+        dimText.setAttribute('x', x0 + circ / 2);
+        api.dCm = dCm;
+      },
+      setProgress: function (p) {         // p：轉了幾圈（0～1）
+        rollP = p;
+        var theta = p * 2 * PI;
+        var cx = x0 + theta * r;          // 平移距離＝旋轉弧長，輪子不打滑
+        wheel.setAttribute('transform', 'translate(' + cx + ' ' + cy + ')');
+        rot.setAttribute('transform', 'rotate(' + (p * 360) + ')');
+        trail.setAttribute('x2', cx);
+        used.setAttribute('stroke-dasharray', (theta * r) + ' ' + (circ + 1));
+        read.textContent = p > 0 ? opt.readout(p, api.dCm) : '';
+      },
+      setDone: function (isDone, text) {
+        show(doneLayer, isDone);
+        if (isDone) dimText.textContent = text;
+        svg.classList.toggle('is-done', isDone);
+      },
+      getProgress: function () { return rollP; }
+    };
+    return api;
+  }
+
+  var roller0 = makeRoller($('svg0'), {
+    id: 'wheel0', x0: 264, groundY: 256, trackFrom: 60, trackTo: 1040, numbers: false,
+    readout: function (p) { return Math.round(p * 360) + '°'; }
+  });
+  var roller2 = makeRoller($('svg2'), {
+    id: 'wheel2', x0: 140, groundY: 296, trackFrom: 20, trackTo: 1050, numbers: true,
+    readout: function (p, d) { return fmt2(d * PI * p) + ' cm'; }
+  });
+
+  /* ========== 階段二的圖 ========== */
+  var bars = (function () {
+    var svg = $('svg1');
+    var xL = 50, D = LINE_D, C = D * PI, rest = C - 3 * D;
+    var yC = 72, yD = 124, h = 30, srcY = 398;
+
+    S('text', { x: xL, y: yC - 14, 'class': 'row-label tc' }, svg, '圓周長（輪子滾一圈的距離）');
+    var bar = S('rect', { x: xL, y: yC, height: h, 'class': 'bar-c', id: 'barC' }, svg);
+    var restBar = S('rect', { x: xL + 3 * D, y: yC, width: rest, height: h, 'class': 'bar-rest', id: 'barRest' }, svg);
+    var restLabel = S('text', { x: xL + 3 * D + rest / 2, y: yC - 14, 'class': 'row-label', 'text-anchor': 'middle', style: 'fill:var(--pink)' }, svg, '還剩一小段');
+
+    var callout = S('g', {}, svg);
+    var c1 = S('text', { x: 700, y: 276, 'class': 'callout' }, callout);
+    var c2 = S('text', { x: 700, y: 316, 'class': 'callout-sub' }, callout);
+    var arrow = S('path', { 'class': 'arrow', d: 'M790 236 C 830 215, 845 190, 835 164 M820 176 L835 162 L847 180' }, callout);
+
+    // 直徑來源：放大顯示的半個輪子
+    var srcG = S('g', {}, svg);
+    var cx = xL + D / 2;
+    S('path', { d: 'M' + xL + ' ' + (srcY + 15) + ' A' + (D / 2) + ' ' + (D / 2) + ' 0 0 1 ' + (xL + D) + ' ' + (srcY + 15), fill: 'rgba(255,255,255,.7)', stroke: 'var(--orange)', 'stroke-width': 6 }, srcG);
+    S('rect', { x: xL, y: srcY, width: D, height: h, 'class': 'piece piece-odd', id: 'srcD' }, srcG);
+    S('text', { x: cx, y: srcY - 18, 'class': 'row-label td', 'text-anchor': 'middle' }, srcG, '一條直徑');
+    S('text', { x: 1060, y: 432, 'class': 'note' }, svg, '畫面放大顯示，長度比例不變');
+
+    var pieces = [];
+    for (var i = 0; i < 4; i++) {
+      var g = S('g', { 'class': 'p-group' }, svg);
+      var cls = i === 3 ? 'piece piece-over' : (i % 2 ? 'piece piece-even' : 'piece piece-odd');
+      S('rect', { x: 0, y: 0, width: D, height: h, 'class': cls }, g);
+      S('text', { x: D / 2, y: h - 7, 'class': 'piece-n' + (i === 3 ? ' dark' : '') }, g, String(i + 1));
+      pieces.push(g);
+    }
+    return {
+      C: C, D: D, xL: xL,
+      setLine: function (p) { bar.setAttribute('width', C * p); },
+      setPiece: function (i, p) {
+        if (p < 0) { show(pieces[i], false); return; }
+        show(pieces[i], true);
+        pieces[i].setAttribute('transform', 'translate(' + lerp(xL, xL + i * D, p) + ' ' + lerp(srcY, yD, p) + ')');
+      },
+      setExtras: function (n) {
+        show(restBar, n >= 3); show(restLabel, n >= 3); show(callout, n >= 3);
+        show(arrow, n === 3);
+        if (n === 3) { c1.textContent = '咦？三個直徑還不夠！'; c2.textContent = '再放一個，會發生什麼事？'; }
+        if (n >= 4) { c1.textContent = '第四個直徑超過圓周長了！'; c2.textContent = '比一比：圓周長到底有幾個直徑那麼長？'; }
+      },
+      showAll: function (n) {
+        for (var i = 0; i < 4; i++) this.setPiece(i, i < n ? 1 : -1);
+        this.setExtras(n);
+      }
+    };
+  })();
+
+  /* ========== 問答 ========== */
+  function buildQuiz(host, key) {
+    var q = QUIZ[key];
+    host.innerHTML = '';
+    var p = document.createElement('p'); p.className = 'q'; p.textContent = q.q; host.appendChild(p);
+    var opts = document.createElement('div'); opts.className = 'opts'; host.appendChild(opts);
+    q.opts.forEach(function (o, i) {
+      var b = document.createElement('button');
+      b.className = 'opt';
+      b.innerHTML = '<em>' + o[0] + '.</em><span>' + o[1] + '</span>';
+      b.addEventListener('click', function () { answer(key, i); });
+      opts.appendChild(b);
+    });
+    var fb = document.createElement('p'); fb.className = 'fb'; fb.setAttribute('aria-live', 'polite'); host.appendChild(fb);
+  }
+  function renderQuiz(host, key) {
+    var q = QUIZ[key], s = state.quiz[key];
+    var btns = host.querySelectorAll('.opt'), fb = host.querySelector('.fb');
+    btns.forEach(function (b, i) {
+      b.classList.toggle('right', s.done && i === q.answer);
+      b.classList.toggle('wrong', !s.done && s.wrong === i);
+      b.dataset.off = s.done ? '1' : '';
+    });
+    if (s.done) { fb.className = 'fb good'; fb.textContent = q.right; show(fb, true); }
+    else if (s.wrong !== null) { fb.className = 'fb hint'; fb.textContent = q.hints[s.wrong]; show(fb, true); }
+    else show(fb, false);
+  }
+  function answer(key, i) {
+    if (job) return;
+    var s = state.quiz[key];
+    if (s.done) return;
+    if (i === QUIZ[key].answer) { s.done = true; s.wrong = null; } else s.wrong = i;
+    renderAll();
+  }
+  buildQuiz($('s0Quiz'), 'roll');
+  buildQuiz($('s1Quiz'), 'times');
+
+  /* ========== 階段三：選圓 + 表格 ========== */
+  CIRCLES.forEach(function (c) {
+    var b = document.createElement('button');
+    b.className = 'pick';
+    b.dataset.id = c.id;
+    b.addEventListener('click', function () {
+      if (job) return;
+      state.s2.sel = c.id;
+      renderAll();
+    });
+    $('picks').appendChild(b);
+    var tr = document.createElement('tr');
+    tr.id = 'row-' + c.id;
+    tr.innerHTML = '<td>' + c.name + '</td><td class="num td">' + c.d + ' cm</td><td class="num tc" data-c></td>';
+    $('s2Body').appendChild(tr);
+  });
+  function selCircle() { return CIRCLES.filter(function (c) { return c.id === state.s2.sel; })[0]; }
+  function measuredCount() { return Object.keys(state.s2.data).length; }
+
+  /* ========== 階段四：比值表 ========== */
+  (function buildRatios() {
+    var host = $('ratios'), html = '';
+    html += '<div class="h">圓形</div><div class="h td">直徑</div><div class="h tc">圓周長</div><div class="h"><span class="tc">圓周長</span>&nbsp;÷&nbsp;<span class="td">直徑</span></div><div class="h" aria-hidden="true"></div>';
+    CIRCLES.forEach(function (c, i) {
+      var r = c.d * 3.5, last = i === 2 ? ' last' : '';
+      html += '<div class="nm' + last + '"><span>' + c.name + '</span><svg class="m" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="' + r + '"></circle><line x1="' + (40 - r) + '" y1="40" x2="' + (40 + r) + '" y2="40"></line></svg></div>';
+      html += '<div class="td' + last + '">' + c.d + ' cm</div>';
+      html += '<div class="tc' + last + '" data-rc="' + c.id + '"></div>';
+      html += '<div class="calc' + last + '" data-calc="' + c.id + '"><span class="eq"></span><span class="res"></span></div>';
+    });
+    html += '<div class="brace-cell"><svg viewBox="0 0 40 100" preserveAspectRatio="none" id="brace" aria-hidden="true"><path d="M6 3 C 26 3, 12 50, 34 50 C 12 50, 26 97, 6 97"></path></svg></div>';
+    host.innerHTML = html;
+  })();
+
+  function ratioOf(c) {
+    var rec = state.s2.data[c.id];
+    return rec ? round2(rec.c / c.d) : null;
+  }
+  function setRatioRow(c, step) {   // step：0 不顯示、1 只顯示算式、2 顯示結果
+    var cell = document.querySelector('[data-calc="' + c.id + '"]');
+    var eq = cell.querySelector('.eq'), res = cell.querySelector('.res');
+    var rec = state.s2.data[c.id];
+    if (rec) { eq.textContent = fmt2(rec.c) + ' ÷ ' + c.d; res.textContent = '≈ ' + fmt2(ratioOf(c)); }
+    eq.classList.toggle('on', step >= 1);
+    res.classList.toggle('on', step >= 2);
+  }
+  function setBrace(t) {
+    var b = $('brace');
+    b.style.opacity = t > 0 ? 1 : 0;
+    b.style.clipPath = 'inset(0 0 ' + ((1 - t) * 100) + '% 0)';
+    b.style.webkitClipPath = b.style.clipPath;
+  }
+  function setRevealItems(t) {
+    document.querySelectorAll('#reveal [data-at]').forEach(function (el) {
+      el.classList.toggle('on', t >= parseFloat(el.dataset.at));
+    });
+  }
+
+  /* ========== 動作 ========== */
+  function rollS0() {
+    if (job) return;
+    roller0.setDone(false);
+    roller0.setProgress(0);
+    runAnim(3400, function (t) { roller0.setProgress(ease(t)); }, function () {
+      state.s0.rolled = true;
+      renderAll();
+    });
+  }
+
+  function animatePiece(i, done) {
+    bars.setPiece(i, 0);
+    runAnim(520, function (t) { bars.setPiece(i, ease(t)); }, done);
+  }
+  function placePiece() {
+    if (job || state.s1.placed >= 4) return;
+    var i = state.s1.placed;
+    bars.showAll(i);
+    animatePiece(i, function () { state.s1.placed = i + 1; renderAll(); });
+  }
+  function introS1() {
+    bars.setLine(0);
+    runAnim(900, function (t) { bars.setLine(ease(t)); }, function () {
+      state.s1.introDone = true;
+      renderAll();
+    });
+  }
+  function replayS1() {
+    var n = state.s1.placed;
+    bars.showAll(0);
+    bars.setLine(0);
+    runAnim(900, function (t) { bars.setLine(ease(t)); }, function () {
+      (function next(i) {
+        if (i >= n) { renderAll(); return; }
+        bars.setExtras(i);
+        animatePiece(i, function () { next(i + 1); });
+      })(0);
+    });
+  }
+
+  function measure() {
+    if (job) return;
+    var c = selCircle();
+    roller2.setCircle(c.d, c.name + '　直徑 ' + c.d + ' cm');
+    roller2.setDone(false);
+    roller2.setProgress(0);
+    runAnim(2600, function (t) { roller2.setProgress(ease(t)); }, function () {
+      state.s2.data[c.id] = { d: c.d, c: round2(c.d * PI) };
+      renderAll();
+    });
+  }
+
+  function runRatios() {
+    if (job) return;
+    state.s3.calc = false;
+    renderAll();
+    (function next(i) {
+      if (i >= CIRCLES.length) {
+        runAnim(800, function (t) { setBrace(ease(t)); }, function () {
+          state.s3.calc = true;
+          renderAll();
+        });
+        return;
+      }
+      runAnim(1000, function (t) { setRatioRow(CIRCLES[i], t >= 0.45 ? 2 : 1); }, function () { next(i + 1); });
+    })(0);
+  }
+  function runReveal() {
+    state.s3.revealed = true;
+    renderAll();
+    setRevealItems(-1);
+    runAnim(2000, function (t) { setRevealItems(t); }, function () { setRevealItems(1); });
+  }
+
+  /* ========== 畫面更新 ========== */
+  function maxUnlocked() {
+    if (!state.quiz.roll.done) return 0;
+    if (!state.quiz.times.done) return 1;
+    if (measuredCount() < CIRCLES.length) return 2;
+    return 3;
+  }
+
+  function renderS0() {
+    var rolled = state.s0.rolled;
+    roller0.setCircle(WHEEL_D, '');
+    roller0.setProgress(rolled ? 1 : 0);
+    roller0.setDone(rolled, '這段距離就是圓周長');
+    $('s0Say').innerHTML = rolled
+      ? '黃色記號又回到地面了，輪子剛好轉了一整圈。'
+      : '盯著黃色記號，看輪子滾一圈會走多遠。';
+    $('s0Roll').textContent = rolled ? '再滾一次' : '滾動一圈';
+    $('s0Roll').classList.toggle('primary', !rolled);
+    show($('s0Quiz'), rolled);
+    $('s0Quiz').hidden = !rolled;
+    $('s0After').hidden = !state.quiz.roll.done;
+    renderQuiz($('s0Quiz'), 'roll');
+  }
+
+  function renderS1() {
+    var n = state.s1.placed;
+    bars.setLine(state.s1.introDone ? 1 : 0);
+    bars.showAll(n);
+    $('s1Say').innerHTML = n < 3
+      ? '橘色線段是輪子滾一圈的距離。用藍色的<b class="d">直徑</b>排排看，要幾條才一樣長？'
+      : (n === 3 ? '排了三個直徑，橘色線段的尾巴還露在外面。' : '四個直徑又太長了。');
+    $('s1Count').textContent = n ? '已放 ' + n + ' 個直徑' : '';
+    $('s1Clear').hidden = n === 0;
+    off($('s1Place'), n >= 4);
+    $('s1Quiz').hidden = n < 3;
+    $('s1After').hidden = !state.quiz.times.done || n < 3;
+    renderQuiz($('s1Quiz'), 'times');
+  }
+
+  function renderS2() {
+    var c = selCircle(), rec = state.s2.data[c.id];
+    roller2.setCircle(c.d, c.name + '　直徑 ' + c.d + ' cm');
+    roller2.setProgress(rec ? 1 : 0);
+    roller2.setDone(!!rec, rec ? '圓周長 約 ' + fmt2(rec.c) + ' cm' : '');
+
+    document.querySelectorAll('.pick').forEach(function (b) {
+      var cc = CIRCLES.filter(function (x) { return x.id === b.dataset.id; })[0];
+      b.classList.toggle('on', cc.id === c.id);
+      b.innerHTML = cc.name + (state.s2.data[cc.id] ? ' <span class="ok">✓</span>' : '') + '<small>直徑 ' + cc.d + ' cm</small>';
+    });
+    CIRCLES.forEach(function (cc) {
+      var tr = $('row-' + cc.id), r = state.s2.data[cc.id];
+      tr.classList.toggle('sel', cc.id === c.id);
+      tr.querySelector('[data-c]').textContent = r ? '約 ' + fmt2(r.c) + ' cm' : '？';
+    });
+    var left = CIRCLES.length - measuredCount();
+    $('s2Say').textContent = left === 0
+      ? '三個圓都量好了，看看表格裡的數字。'
+      : (rec ? '記錄好了！選另一個圓，還有 ' + left + ' 個要量。' : '選一個圓，測量它的圓周長。還有 ' + left + ' 個要量。');
+    $('s2Measure').textContent = rec ? '再測量一次' : '測量圓周長';
+    $('s2Measure').classList.toggle('primary', !rec);
+    $('s2After').hidden = left !== 0;
+  }
+
+  function renderS3() {
+    var s = state.s3;
+    $('s3Table').hidden = s.revealed;
+    $('s3Panel').hidden = s.revealed;
+    $('reveal').hidden = !s.revealed;
+    if (s.revealed) { setRevealItems(1); return; }
+    CIRCLES.forEach(function (c) {
+      var rec = state.s2.data[c.id];
+      document.querySelector('[data-rc="' + c.id + '"]').textContent = rec ? fmt2(rec.c) + ' cm' : '';
+      setRatioRow(c, s.calc ? 2 : 0);
+    });
+    setBrace(s.calc ? 1 : 0);
+    $('s3Say').textContent = s.calc
+      ? '明明圓的大小不同，為什麼比值都差不多？先想一想，再揭曉。'
+      : '我們之前學過比值，如果把圓周長除以直徑，結果會是多少？';
+    $('s3Calc').hidden = s.calc;
+    $('s3Reveal').hidden = !s.calc;
+  }
+
+  function renderHeader() {
+    var max = maxUnlocked();
+    document.querySelectorAll('#steps button').forEach(function (b) {
+      var n = +b.dataset.go;
+      b.classList.toggle('now', n === state.stage);
+      b.classList.toggle('done', n < max && n !== state.stage);
+      b.disabled = n > max;
+    });
+    for (var i = 0; i < 4; i++) $('stage' + i).hidden = i !== state.stage;
+    $('tReplay').disabled = !canReplay();
+    $('tPrev').disabled = state.stage === 0;
+  }
+
+  function renderAll() {
+    renderHeader();
+    [renderS0, renderS1, renderS2, renderS3][state.stage]();
+    syncLocks();
+  }
+
+  /* ========== 導覽與老師工具 ========== */
+  function go(n) {
+    finishAll();
+    if (n < 0 || n > 3 || n > maxUnlocked()) return;
+    state.stage = n;
+    renderAll();
+    if (n === 1 && !state.s1.introDone) introS1();
+  }
+  function prev() {
+    finishAll();
+    if (state.stage === 3 && state.s3.revealed) { state.s3.revealed = false; renderAll(); return; }
+    go(state.stage - 1);
+  }
+  function canReplay() {
+    switch (state.stage) {
+      case 0: return state.s0.rolled;
+      case 1: return state.s1.introDone;
+      case 2: return !!state.s2.data[state.s2.sel];
+      default: return state.s3.calc || state.s3.revealed;
+    }
+  }
+  function replay() {
+    finishAll();
+    if (!canReplay()) return;
+    switch (state.stage) {
+      case 0: rollS0(); break;
+      case 1: replayS1(); break;
+      case 2: measure(); break;
+      default:
+        if (state.s3.revealed) runReveal();
+        else { runRatios(); }
+    }
+  }
+  var armTimer = null;
+  function reset() {
+    var b = $('tReset');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed');
+      b.textContent = '再按一次確定';
+      clearTimeout(armTimer);
+      armTimer = setTimeout(disarm, 3000);
+      return;
+    }
+    disarm();
+    stopAnim();
+    state = freshState();
+    closeTools();
+    renderAll();
+  }
+  function disarm() {
+    clearTimeout(armTimer);
+    var b = $('tReset');
+    b.classList.remove('armed');
+    b.textContent = '重新開始';
+  }
+  function closeTools() {
+    $('tPanel').hidden = true;
+    $('tToggle').setAttribute('aria-expanded', 'false');
+    disarm();
+  }
+
+  /* ========== 事件 ========== */
+  $('s0Roll').addEventListener('click', rollS0);
+  $('s1Place').addEventListener('click', placePiece);
+  $('s1Clear').addEventListener('click', function () {
+    if (job) return;
+    state.s1.placed = 0;
+    state.quiz.times.wrong = null;
+    renderAll();
+  });
+  $('s2Measure').addEventListener('click', measure);
+  $('s3Calc').addEventListener('click', runRatios);
+  $('s3Reveal').addEventListener('click', function () { if (!job) runReveal(); });
+  document.querySelectorAll('[data-next]').forEach(function (b) {
+    b.addEventListener('click', function () { if (!job) go(+b.dataset.next); });
+  });
+  document.querySelectorAll('#steps button').forEach(function (b) {
+    b.addEventListener('click', function () { go(+b.dataset.go); });
+  });
+  $('tToggle').addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = $('tPanel').hidden;
+    if (open) { $('tPanel').hidden = false; $('tToggle').setAttribute('aria-expanded', 'true'); }
+    else closeTools();
+  });
+  $('tPanel').addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('click', closeTools);
+  $('tSkip').addEventListener('click', finishAll);
+  $('tReplay').addEventListener('click', replay);
+  $('tPrev').addEventListener('click', prev);
+  $('tReset').addEventListener('click', reset);
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
